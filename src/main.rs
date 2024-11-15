@@ -9,6 +9,14 @@ mod tests {
     use sqlx::postgres::PgPoolOptions;
 
     #[tokio::test]
+    async fn test_execute() -> Result<(), Error> {
+        let pool = get_pool().await?;
+        sqlx::query("insert into category(id, name, description) values ('A', 'Contoh', 'Contoh');")
+            .execute(&pool).await?;
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn test_pool_connection() -> Result<(), Error> {
         let pool = get_pool().await?;
         pool.close().await;
