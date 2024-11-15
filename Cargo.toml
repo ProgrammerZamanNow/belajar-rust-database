@@ -5,5 +5,6 @@ edition = "2021"
 
 [dependencies]
 chrono = "0.4.38"
+futures = "0.3.31"
 sqlx = { version = "0.8.2", features = ["runtime-tokio", "chrono", "postgres"] }
 tokio = { version = "1.41.1", features = ["full"] }
