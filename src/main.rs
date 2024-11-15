@@ -5,9 +5,48 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use std::time::Duration;
+    use chrono::{Local, NaiveDateTime};
     use futures::TryStreamExt;
     use sqlx::{Connection, Error, FromRow, PgConnection, Pool, Postgres, Row};
     use sqlx::postgres::{PgPoolOptions, PgRow};
+
+    #[tokio::test]
+    async fn test_result_mapping_brand() -> Result<(), Error> {
+        let pool = get_pool().await?;
+
+        let result: Vec<Brand> = sqlx::query_as("select * from brands")
+            .fetch_all(&pool).await?;
+
+        for brand in result {
+            println!("{:?}", brand);
+        }
+
+        Ok(())
+    }
+
+    #[derive(Debug, FromRow)]
+    struct Brand {
+        id: String,
+        name: String,
+        description: String,
+        created_at: NaiveDateTime,
+        updated_at: NaiveDateTime,
+    }
+
+    #[tokio::test]
+    async fn test_insert_brand() -> Result<(), Error> {
+        let pool = get_pool().await?;
+
+        sqlx::query("insert into brands(id, name, description, created_at, updated_at) values ($1, $2, $3, $4, $5);")
+            .bind("A")
+            .bind("Contoh Name")
+            .bind("Contoh Description")
+            .bind(Local::now().naive_local())
+            .bind(Local::now().naive_local())
+            .execute(&pool).await?;
+
+        Ok(())
+    }
 
     #[tokio::test]
     async fn test_result_mapping_automatic() -> Result<(), Error> {
@@ -44,7 +83,7 @@ mod tests {
         Ok(())
     }
 
-    #[derive(Debug,FromRow)]
+    #[derive(Debug, FromRow)]
     struct Category {
         id: String,
         name: String,
