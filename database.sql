@@ -17,4 +17,13 @@ create table brands
     updated_at  timestamp    not null default current_timestamp
 );
 
-select * from brands;
+select *
+from brands;
+
+create table sellers
+(
+    id   serial primary key,
+    name varchar(100) not null
+);
+
+select * from sellers;
