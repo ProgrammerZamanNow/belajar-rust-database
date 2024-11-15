@@ -11,6 +11,40 @@ mod tests {
     use sqlx::postgres::{PgPoolOptions, PgRow};
 
     #[tokio::test]
+    async fn test_transaction() -> Result<(), Error> {
+        let pool = get_pool().await?;
+        let mut transaction = pool.begin().await?;
+
+        sqlx::query("insert into brands(id, name, description, created_at, updated_at) values ($1, $2, $3, $4, $5);")
+            .bind("B")
+            .bind("Contoh Name")
+            .bind("Contoh Description")
+            .bind(Local::now().naive_local())
+            .bind(Local::now().naive_local())
+            .execute(&mut *transaction).await?;
+
+        sqlx::query("insert into brands(id, name, description, created_at, updated_at) values ($1, $2, $3, $4, $5);")
+            .bind("C")
+            .bind("Contoh Name")
+            .bind("Contoh Description")
+            .bind(Local::now().naive_local())
+            .bind(Local::now().naive_local())
+            .execute(&mut *transaction).await?;
+
+        sqlx::query("insert into brands(id, name, description, created_at, updated_at) values ($1, $2, $3, $4, $5);")
+            .bind("D")
+            .bind("Contoh Name")
+            .bind("Contoh Description")
+            .bind(Local::now().naive_local())
+            .bind(Local::now().naive_local())
+            .execute(&mut *transaction).await?;
+
+        transaction.commit().await?;
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn test_result_mapping_brand() -> Result<(), Error> {
         let pool = get_pool().await?;
 
